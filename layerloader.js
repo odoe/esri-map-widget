@@ -28,7 +28,9 @@ define([
   function dynamicLoader(lyr) {
     var dlyr = new ArcGISDynamicMapServiceLayer(lyr.url, lyr);
     dlyr.title = lyr.title;
-    dlyr.setVisibleLayers(lyr.visibleLayers);
+    if (lyr.visibleLayers) {
+      dlyr.setVisibleLayers(lyr.visibleLayers);
+    }
     return dlyr;
   }
 
@@ -75,16 +77,18 @@ define([
 
   function parseLayers(lyr) {
     var url = lyr.url.toLowerCase();
+
+    if (url.indexOf('/featureserver') > -1 ||
+        lyr.type === 'feature') {
+      return featureLoader(lyr);
+    }
+
     if (url.indexOf('/mapserver') > -1) {
       if (lyr.type !== 'tiled') {
         return dynamicLoader(lyr);
       } else {
         return tiledLoader(lyr);
       }
-    }
-
-    if (url.indexOf('/featureserver') > -1) {
-      return featureLoader(lyr);
     }
 
     if (url.indexOf('/imageserver') > -1) {
