@@ -35,7 +35,7 @@ define([
     postCreate: function() {
       domConstruct.place(this.domNode, document.body);
       this.own(
-        topic.subscribe('map-clear', lang.hitch(this, this._clear))
+        topic.subscribe('map-clear', lang.hitch(this, '_clear'))
       );
     },
 
@@ -45,7 +45,7 @@ define([
       // initialize the map
       this.set('map', data.map);
       on.once(this.get('map'), 'layers-add-result',
-              lang.hitch(this, this._layersAddedHandler));
+              lang.hitch(this, '_layersAddedHandler'));
       this.map.addLayers(data.layers);
     },
 
