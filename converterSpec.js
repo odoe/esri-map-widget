@@ -11,7 +11,6 @@ define([
 ) {
   'use strict';
 
-
   describe(
     'widgets/map/converter',
     function() {
@@ -22,7 +21,6 @@ define([
 
       var mapDiv = document.createElement('div');
       mapDiv.id = 'map';
-
 
       beforeEach(function() {
         document.body.appendChild(mapDiv);
@@ -45,7 +43,7 @@ define([
             function() {
               converter.toWebMapAsJSON();
               expect(
-                PrintTask.prototype._getPrintDefinition.called
+                PrintTask.prototype._getPrintDefinition.calledOnce
               ).to.be.ok();
             }
           );
