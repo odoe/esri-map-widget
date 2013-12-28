@@ -2,13 +2,15 @@
 define([
   'esri/map',
   'esri/tasks/PrintTask',
-  'widgets/map/converter'
+  'widgets/map/converter',
+  'widgets/map/layerloader'
 ], function(
   Map,
   PrintTask,
-  converter
+  converter, layerUtil
 ) {
   'use strict';
+
 
   describe(
     'widgets/map/converter',
@@ -24,13 +26,13 @@ define([
 
       beforeEach(function() {
         document.body.appendChild(mapDiv);
-        sinon.stub(Map.prototype, 'constructor');
+        sinon.stub(layerUtil, 'loadLayers').returns([1,2,3]);
         sinon.stub(PrintTask.prototype, '_getPrintDefinition');
       });
 
       afterEach(function() {
         document.body.removeChild(mapDiv);
-        Map.prototype.constructor.restore();
+        layerUtil.loadLayers.restore();
         PrintTask.prototype._getPrintDefinition.restore();
       });
 
@@ -56,10 +58,18 @@ define([
         function() {
 
           it(
-            'will generate map and layers from web map spec json',
+            'will generate map from web map spec json',
             function() {
-              converter.fromWebMapAsJSON(options);
-              expect(Map.prototype.constructor).to.be.ok();
+              var data = converter.fromWebMapAsJSON(options);
+              expect(data.map).to.be.a(Map);
+            }
+          );
+
+          it(
+            'will return a layers array from web map spec json',
+            function() {
+              var data = converter.fromWebMapAsJSON(options);
+              expect(data.layers).to.eql([1,2,3]);
             }
           );
 

@@ -103,13 +103,15 @@ define([
    * @param {Array} layers
    * @return {Object} object
    */
-  function loadLayers(layers) {
+  function _loadLayers(layers) {
     return arrayUtil.map(layers, function(lyr) {
         return parseLayers(lyr);
     });
   }
 
-  return loadLayers;
+  return {
+    loadLayers: _loadLayers
+  };
 
 });
 
