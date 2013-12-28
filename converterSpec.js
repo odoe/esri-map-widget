@@ -3,7 +3,7 @@ define([
   'esri/map',
   'esri/tasks/PrintTask',
   'widgets/map/converter',
-  'widgets/map/layerloader'
+  'widgets/map/layerutil'
 ], function(
   Map,
   PrintTask,

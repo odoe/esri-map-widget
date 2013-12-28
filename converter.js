@@ -12,7 +12,7 @@ define([
   'esri/SpatialReference',
   'esri/geometry/Extent',
   'esri/geometry/Point',
-  'widgets/map/layerloader',
+  'widgets/map/layerutil',
 ], function(
   PrintTask,
   Map, esriLang, SpatialReference,
