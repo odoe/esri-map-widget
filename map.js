@@ -44,8 +44,10 @@ define([
 
       // initialize the map
       this.set('map', data.map);
-      on.once(this.get('map'), 'layers-add-result',
-              lang.hitch(this, '_layersAddedHandler'));
+      this.own(
+        on.once(this.get('map'), 'layers-add-result',
+                lang.hitch(this, '_layersAddedHandler'))
+      );
       this.map.addLayers(data.layers);
     },
 
