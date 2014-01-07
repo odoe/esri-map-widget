@@ -44,6 +44,14 @@ define([
 
       // initialize the map
       this.set('map', data.map);
+
+      if (this.options.infoWindowSize) {
+        var w, h;
+        w = this.options.infoWindowSize.width;
+        h = this.options.infoWindowSize.height;
+        this.map.infoWindow.resize(w, h);
+      }
+
       this.own(
         on.once(this.get('map'), 'layers-add-result',
                 lang.hitch(this, '_layersAddedHandler'))
