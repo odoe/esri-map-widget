@@ -7,6 +7,7 @@ define([
   'dojo/on',
   'dojo/Evented',
   'dojo/Deferred',
+  'dojo/dom',
   'dojo/dom-construct',
   // dijit stuff
   'dijit/_WidgetBase',
@@ -15,7 +16,7 @@ define([
 ], function(
   declare, lang,
   topic, on, Evented, Deferred,
-  domConstruct,
+  dom, domConstruct,
   _WidgetBase, _TemplatedMixin,
   converter
 ) {
@@ -33,7 +34,13 @@ define([
     },
 
     postCreate: function() {
-      domConstruct.place(this.domNode, document.body);
+      var elem;
+      if (this.options.target) {
+        elem = dom.byId(this.options.target);
+      } else {
+        elem = document.body;
+      }
+      domConstruct.place(this.domNode, elem);
       this.own(
         topic.subscribe('map-clear', lang.hitch(this, '_clear'))
       );
