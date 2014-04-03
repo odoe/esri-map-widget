@@ -13,6 +13,10 @@ define([
   'use strict';
 
   var options = {
+    infoWindowSize: {
+      width: 100,
+      height: 100
+    },
     mapOptions: {}
   };
 
@@ -25,6 +29,9 @@ define([
         addLayers: function(){},
         graphics: {
           clear: function(){}
+        },
+        infoWindow: {
+          resize: function(){}
         }
       }
     };
@@ -40,6 +47,7 @@ define([
       sinon.stub(on, 'once');
       //sinon.stub(data.map, 'addLayers');
       sinon.stub(data.map.graphics, 'clear');
+      sinon.stub(data.map.infoWindow, 'resize');
 
       widget = new MapWidget(options);
       widget.postCreate();
@@ -52,6 +60,7 @@ define([
       on.once.restore();
       data.map.addLayers.restore();
       data.map.graphics.clear.restore();
+      data.map.infoWindow.resize.restore();
       widget.destroy();
     });
 
@@ -81,6 +90,12 @@ define([
             expect(widget.get('map')).to.eql(data.map);
           }
         );
+        it(
+            'will resize infoWindow when size provided in options',
+            function() {
+              expect(data.map.infoWindow.resize.called).to.be.ok();
+            }
+          );
         it(
           'will listen for the map to add layers',
           function() {
