@@ -3,6 +3,7 @@
 define([
   'dojo/_base/declare',
   'dojo/_base/lang',
+  'dojo/_base/array',
   'dojo/topic',
   'dojo/on',
   'dojo/Evented',
@@ -13,7 +14,7 @@ define([
   'dijit/_TemplatedMixin',
   'widgets/map/converter'
 ], function(
-  declare, lang,
+  declare, lang, arrayUtil,
   topic, on, Evented, Deferred,
   domConstruct,
   _WidgetBase, _TemplatedMixin,
@@ -21,15 +22,24 @@ define([
 ) {
   'use strict';
 
+  function head(t) {
+    return t[0];
+  }
+
   return declare([_WidgetBase, _TemplatedMixin, Evented], {
 
     options: {},
 
-    templateString: '<div id="container-main"><div id="map"></div></div>',
+    templateString: '<div id="container-main"><div id="map-div"></div></div>',
 
     constructor: function(options) {
       this.options = options || {};
-      this.mapOptions = this.options.mapOptions || {};
+      if (options.webmap) {
+        this.operationalLayers = options.webmap.itemData.operationalLayers;
+        this.layerIds = arrayUtil.map(this.operationalLayers, function(lyr) {
+          return lyr.id;
+        }, this);
+      }
     },
 
     postCreate: function() {
@@ -40,20 +50,31 @@ define([
     },
 
     startup: function() {
-      var data = converter.fromWebMapAsJSON(this.options);
-
-      // initialize the map
-      this.set('map', data.map);
-      this.own(
-        on.once(this.get('map'), 'layers-add-result',
-                lang.hitch(this, '_layersAddedHandler'))
-      );
-      this.map.addLayers(data.layers);
+      var data = converter.fromWebMapAsJSON(
+        this.options
+      ).then(lang.hitch(this, '_mapCreated'));
     },
 
     // private methods
-    _layersAddedHandler: function() {
-      this._init();
+    _mapCreated: function(response) {
+        this.set('map', response.map);
+        // need to set titles for layers
+        var map = this.get('map');
+        arrayUtil.forEach(map.layerIds, function(id) {
+          var layer, opLayer;
+          layer = map.getLayer(id);
+          opLayer = this._findLayerById(id);
+          if (opLayer) {
+            layer.title = opLayer.title;
+          }
+        }, this);
+        this._init();
+    },
+
+    _findLayerById: function(id) {
+      return head(arrayUtil.filter(this.operationalLayers, function(lyr) {
+        return lyr.id === id;
+      }, this));
     },
 
     _clear: function() {

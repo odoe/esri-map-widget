@@ -4,7 +4,7 @@ define([
   'dojo/on',
   'dojo/topic',
   'widgets/map/converter',
-  'widgets/map/map'
+  'widgets/map/map',
 ], function(
   on, topic,
   converter,
@@ -31,9 +31,14 @@ define([
 
     beforeEach(function() {
       sinon.stub(converter, 'fromWebMapAsJSON')
-      .returns(data);
+      .returns({
+          then: function(callback) {
+            callback(data);
+          }
+        }
+      );
       sinon.stub(on, 'once');
-      sinon.stub(data.map, 'addLayers');
+      //sinon.stub(data.map, 'addLayers');
       sinon.stub(data.map.graphics, 'clear');
 
       widget = new MapWidget(options);
@@ -80,7 +85,6 @@ define([
           'will listen for the map to add layers',
           function() {
             expect(on.once.called).to.be.ok();
-            expect(data.map.addLayers.called).to.be.ok();
           }
         );
 

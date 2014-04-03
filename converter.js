@@ -7,36 +7,12 @@
  **/
 define([
   'esri/tasks/PrintTask',
-  'esri/map',
-  'esri/lang',
-  'esri/SpatialReference',
-  'esri/geometry/Extent',
-  'esri/geometry/Point',
-  'widgets/map/layerutil',
+  'esri/arcgis/utils',
 ], function(
   PrintTask,
-  Map, esriLang, SpatialReference,
-  Extent, Point,
-  layerUtil
+  arcgisUtils
 ) {
   'use strict';
-
-  function mapGen(mapOptions) {
-    if (esriLang.isDefined(mapOptions.spatialReference)) {
-      mapOptions.spatialReference = new SpatialReference(mapOptions.wkid);
-      if (esriLang.isDefined(mapOptions.center)) {
-        mapOptions.center = new Point(mapOptions.center,
-                                      mapOptions.spatialReference);
-      }
-      if (esriLang.isDefined(mapOptions.extent)) {
-        mapOptions.extent = new Extent(mapOptions.extent);
-      }
-    }
-
-    // initialize the map
-    return new Map('map', mapOptions);
-
-  }
 
   return {
 
@@ -44,19 +20,20 @@ define([
       return PrintTask.prototype._getPrintDefinition(map);
     },
 
-    fromWebMapAsJSON: function(obj) {
-      var mapOptions = obj.mapOptions
-        , operationalLayers = obj.operationalLayers
-        , map
-        , layers;
-
-      map = mapGen(mapOptions);
-      layers = layerUtil.loadLayers(operationalLayers);
-
-      return {
-        map: map,
-        layers: layers
-      };
+    fromWebMapAsJSON: function(options) {
+      if (options.webmapid) {
+        return arcgisUtils.createMap(
+          options.webmapid, options.id
+        );
+      } else if (options.webmap) {
+        return arcgisUtils.createMap(
+          options.webmap,
+          options.id,
+          {
+            mapOptions: options.mapOptions
+          }
+        );
+      }
     }
 
   };
