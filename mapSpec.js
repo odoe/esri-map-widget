@@ -58,7 +58,7 @@ define([
     afterEach(function() {
       converter.fromWebMapAsJSON.restore();
       on.once.restore();
-      data.map.addLayers.restore();
+      //data.map.addLayers.restore();
       data.map.graphics.clear.restore();
       data.map.infoWindow.resize.restore();
       widget.destroy();
@@ -96,13 +96,6 @@ define([
               expect(data.map.infoWindow.resize.called).to.be.ok();
             }
           );
-        it(
-          'will listen for the map to add layers',
-          function() {
-            expect(on.once.called).to.be.ok();
-          }
-        );
-
       }
     );
 
@@ -126,7 +119,7 @@ define([
               done();
             });
             widget.startup();
-            widget._init();
+            //widget._init();
           }
         );
 

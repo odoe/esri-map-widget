@@ -60,6 +60,9 @@ define([
         this.set('map', response.map);
         // need to set titles for layers
         var map = this.get('map');
+        if (this.options.infoWindowSize) {
+          map.infoWindow.resize(this.options.infoWindowSize);
+        }
         arrayUtil.forEach(map.layerIds, function(id) {
           var layer, opLayer;
           layer = map.getLayer(id);
