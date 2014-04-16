@@ -30,7 +30,7 @@ define([
 
     options: {},
 
-    templateString: '<div id="container-main"></div></div>',
+    templateString: '<div id="container-main"></div>',
 
     constructor: function(options) {
       this.options = options || {};
