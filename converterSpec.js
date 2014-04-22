@@ -1,13 +1,15 @@
 /*global define, describe, it, expect, beforeEach, afterEach, sinon*/
+/*jshint expr:true*/
 define([
   'esri/map',
   'esri/tasks/PrintTask',
   'widgets/map/converter',
-  'widgets/map/layerutil'
+  'esri/arcgis/utils'
 ], function(
   Map,
   PrintTask,
-  converter, layerUtil
+  converter,
+  arcgisUtils
 ) {
   'use strict';
 
@@ -15,7 +17,10 @@ define([
     'widgets/map/converter',
     function() {
 
+      var expect = chai.expect;
+
       var options = {
+        webmapid: 999,
         mapOptions: {}
       };
 
@@ -24,13 +29,15 @@ define([
 
       beforeEach(function() {
         document.body.appendChild(mapDiv);
-        sinon.stub(layerUtil, 'loadLayers').returns([1,2,3]);
+        sinon.stub(arcgisUtils, 'createMap').returns({
+          then: function() {}
+        });
         sinon.stub(PrintTask.prototype, '_getPrintDefinition');
       });
 
       afterEach(function() {
         document.body.removeChild(mapDiv);
-        layerUtil.loadLayers.restore();
+        arcgisUtils.createMap.restore();
         PrintTask.prototype._getPrintDefinition.restore();
       });
 
@@ -44,7 +51,7 @@ define([
               converter.toWebMapAsJSON();
               expect(
                 PrintTask.prototype._getPrintDefinition.calledOnce
-              ).to.be.ok();
+              ).to.be.ok;
             }
           );
 
@@ -56,18 +63,10 @@ define([
         function() {
 
           it(
-            'will generate map from web map spec json',
+            'will use arcgisUtils to create a map',
             function() {
-              var data = converter.fromWebMapAsJSON(options);
-              expect(data.map).to.be.a(Map);
-            }
-          );
-
-          it(
-            'will return a layers array from web map spec json',
-            function() {
-              var data = converter.fromWebMapAsJSON(options);
-              expect(data.layers).to.eql([1,2,3]);
+              converter.fromWebMapAsJSON(options);
+              expect(arcgisUtils.createMap.called).to.be.ok;
             }
           );
 

@@ -1,5 +1,5 @@
 /*global define, expect, describe, it, beforeEach, afterEach, sinon*/
-/*jshint laxcomma:true*/
+/*jshint laxcomma:true, expr:true*/
 define([
   'dojo/on',
   'dojo/topic',
@@ -11,6 +11,8 @@ define([
   MapWidget
 ) {
   'use strict';
+
+  var expect = chai.expect;
 
   var options = {
     infoWindowSize: {
@@ -45,7 +47,6 @@ define([
         }
       );
       sinon.stub(on, 'once');
-      //sinon.stub(data.map, 'addLayers');
       sinon.stub(data.map.graphics, 'clear');
       sinon.stub(data.map.infoWindow, 'resize');
 
@@ -58,14 +59,13 @@ define([
     afterEach(function() {
       converter.fromWebMapAsJSON.restore();
       on.once.restore();
-      //data.map.addLayers.restore();
       data.map.graphics.clear.restore();
       data.map.infoWindow.resize.restore();
       widget.destroy();
     });
 
     it('is valid when created', function() {
-      expect(widget).to.be.ok();
+      expect(widget).to.be.ok;
     });
 
     it(
@@ -81,7 +81,7 @@ define([
         it(
           'will call converter on startup',
           function() {
-            expect(converter.fromWebMapAsJSON.called).to.be.ok();
+            expect(converter.fromWebMapAsJSON.called).to.be.ok;
           }
         );
         it(
@@ -93,7 +93,7 @@ define([
         it(
             'will resize infoWindow when size provided in options',
             function() {
-              expect(data.map.infoWindow.resize.called).to.be.ok();
+              expect(data.map.infoWindow.resize.called).to.be.ok;
             }
           );
       }
@@ -106,7 +106,7 @@ define([
         it(
           'will load the widget when done',
           function() {
-            expect(widget.loaded).to.be.ok();
+            expect(widget.loaded).to.be.ok;
           }
         );
 
@@ -114,12 +114,11 @@ define([
           'will emit parameters when loaded',
           function(done) {
             on(widget, 'map-ready', function(params) {
-              expect(params).to.be.ok();
+              expect(params).to.be.ok;
               expect(params.map).to.eql(data.map);
               done();
             });
             widget.startup();
-            //widget._init();
           }
         );
 
@@ -134,7 +133,7 @@ define([
           'will clear graphics when topic publishes request',
           function() {
             topic.publish('map-clear', {});
-            expect(data.map.graphics.clear.called).to.be.ok();
+            expect(data.map.graphics.clear.called).to.be.ok;
           }
         );
 
