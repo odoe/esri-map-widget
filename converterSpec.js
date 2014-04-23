@@ -13,7 +13,7 @@ define([
 ) {
   'use strict';
 
-  describe(
+   return describe(
     'widgets/map/converter',
     function() {
 
