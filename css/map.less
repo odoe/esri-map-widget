@@ -1,11 +1,32 @@
+@slider-border: 1px solid #cccccc;
+@slider-offset: 15px;
+@map-offset: 0;
+
 #map-div {
   position: absolute;
-  padding: 0;
+  padding: @map-offset;
   top: 50px;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  left: @map-offset;
+  right: @map-offset;
+  bottom: @map-offset;
   .container {
     max-width: 100% !important; // fixes conflict with Bootstrap css
   }
 }
+
+/*** Restyle Esri Zoomin-out ***/
+.esriSimpleSlider {
+  border: @slider-border;
+  top: @slider-offset;
+  left: @slider-offset;
+}
+.esriSimpleSliderVertical .esriSimpleSliderIncrementButton,
+.esriSimpleSliderVertical .esriSimpleSliderDecrementButton{
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 27px;
+}
+.esriSimpleSliderVertical .esriSimpleSliderIncrementButton {
+  border-bottom: @slider-border;
+}
+
