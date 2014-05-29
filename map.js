@@ -52,26 +52,41 @@ define([
     startup: function() {
       var data = converter.fromWebMapAsJSON(
         this.options
-      ).then(lang.hitch(this, '_mapCreated'));
+      ).then(lang.hitch(this, '_mapCreated'), lang.hitch(this, function(err) {
+        // TODO - figure out how to tell what kind of error occured and fix it
+        /*
+        this.options.webmap.itemData.baseMap.baseMapLayers[0] = {
+          "url": "http://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer",
+          "opacity": 1,
+          "visibility": true,
+          "visibleLayer": [0],
+          "title": "Topo Basemap"
+        };
+        converter.fromWebMapAsJSON(
+          this.options
+        ).then(lang.hitch(this, '_mapCreated'));
+        */
+      }));
     },
 
     // private methods
     _mapCreated: function(response) {
-        this.set('map', response.map);
-        // need to set titles for layers
-        var map = this.get('map');
-        if (this.options.infoWindowSize) {
-          map.infoWindow.resize(this.options.infoWindowSize);
+      console.debug('response map', response);
+      this.set('map', response.map);
+      // need to set titles for layers
+      var map = this.get('map');
+      if (this.options.infoWindowSize) {
+        map.infoWindow.resize(this.options.infoWindowSize);
+      }
+      arrayUtil.forEach(map.layerIds, function(id) {
+        var layer, opLayer;
+        layer = map.getLayer(id);
+        opLayer = this._findLayerById(id);
+        if (opLayer) {
+          layer.title = opLayer.title;
         }
-        arrayUtil.forEach(map.layerIds, function(id) {
-          var layer, opLayer;
-          layer = map.getLayer(id);
-          opLayer = this._findLayerById(id);
-          if (opLayer) {
-            layer.title = opLayer.title;
-          }
-        }, this);
-        this._init();
+      }, this);
+      this._init();
     },
 
     _findLayerById: function(id) {
