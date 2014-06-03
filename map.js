@@ -4,26 +4,41 @@ define([
   'dojo/_base/declare',
   'dojo/_base/lang',
   'dojo/_base/array',
+  'dojo/_base/unload',
   'dojo/topic',
   'dojo/on',
   'dojo/Evented',
   'dojo/Deferred',
   'dojo/dom-construct',
+  'dojo/json',
   // dijit stuff
   'dijit/_WidgetBase',
   'dijit/_TemplatedMixin',
   'widgets/map/converter'
 ], function(
-  declare, lang, arrayUtil,
+  declare, lang, arrayUtil, baseUnload,
   topic, on, Evented, Deferred,
-  domConstruct,
+  domConstruct, dojoJson,
   _WidgetBase, _TemplatedMixin,
   converter
 ) {
   'use strict';
 
+  var KEY = 'esrijs_map_location';
+
   function head(t) {
     return t[0];
+  }
+
+  function supports_local_storage() {
+    var test = 'has_local';
+    try {
+      localStorage.setItem(test, test);
+      localStorage.removeItem(test);
+      return true;
+    } catch(e) {
+      return false;
+    }
   }
 
   return declare([_WidgetBase, _TemplatedMixin, Evented], {
@@ -99,7 +114,26 @@ define([
       this.get('map').graphics.clear();
     },
 
+    _onUnload: function() {
+      if (this.options.saveLocationOnUnload && supports_local_storage()) {
+        var data = {
+          center: this.get('map').extent.getCenter(),
+          zoom: this.get('map').getLevel()
+        };
+        localStorage.setItem(KEY, dojoJson.stringify(data));
+      }
+    },
+
     _init: function() {
+      if (this.options.saveLocationOnUnload && supports_local_storage()) {
+        var vals, data;
+        vals = localStorage.getItem(KEY);
+        if (vals) {
+          data = dojoJson.parse(vals);
+          this.get('map').centerAndZoom(data.center, data.zoom);
+        }
+        baseUnload.addOnUnload(lang.hitch(this, '_onUnload'));
+      }
       this.set('loaded', true);
       var params = {
         map: this.get('map'),
