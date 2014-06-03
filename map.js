@@ -24,8 +24,6 @@ define([
 ) {
   'use strict';
 
-  var KEY = 'esrijs_map_location';
-
   function head(t) {
     return t[0];
   }
@@ -119,14 +117,16 @@ define([
           center: this.get('map').extent.getCenter(),
           zoom: this.get('map').getLevel()
         };
-        localStorage.setItem(KEY, dojoJson.stringify(data));
+        localStorage.setItem(
+          location.href + '--location', dojoJson.stringify(data)
+        );
       }
     },
 
     _init: function() {
       if (this.options.saveLocationOnUnload && supports_local_storage()) {
         var vals, data;
-        vals = localStorage.getItem(KEY);
+        vals = localStorage.getItem(location.href + '--location');
         if (vals) {
           data = dojoJson.parse(vals);
           this.get('map').centerAndZoom(data.center, data.zoom);
