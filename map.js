@@ -86,7 +86,6 @@ define([
 
     // private methods
     _mapCreated: function(response) {
-      console.debug('response map', response);
       this.set('map', response.map);
       // need to set titles for layers
       var map = this.get('map');
