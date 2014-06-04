@@ -112,26 +112,36 @@ define([
     },
 
     _onUnload: function() {
-      if (this.options.saveLocationOnUnload && supports_local_storage()) {
-        var data = {
-          center: this.get('map').extent.getCenter(),
-          zoom: this.get('map').getLevel()
-        };
-        localStorage.setItem(
-          location.href + '--location', dojoJson.stringify(data)
-        );
-      }
+      var data = {
+        center: this.get('map').extent.getCenter(),
+        zoom: this.get('map').getLevel()
+      };
+      localStorage.setItem(
+        location.href + '--location', dojoJson.stringify(data)
+      );
     },
 
     _init: function() {
       if (this.options.saveLocationOnUnload && supports_local_storage()) {
-        var vals, data;
+        var vals, data, iOS, handler;
         vals = localStorage.getItem(location.href + '--location');
         if (vals) {
           data = dojoJson.parse(vals);
           this.get('map').centerAndZoom(data.center, data.zoom);
         }
-        baseUnload.addOnUnload(lang.hitch(this, '_onUnload'));
+        // handle this bug https://bugs.webkit.org/show_bug.cgi?id=19324
+        // In my testing, a refresh of the browser in iOS will not fire
+        // window.onbeforeunload, so if iOS, use map event to write
+        // zoom and center to localStorage
+        iOS = /(iPad|iPhone|iPod)/g.test( navigator.userAgent );
+        handler = lang.hitch(this, '_onUnload');
+        if (!iOS) {
+          baseUnload.addOnUnload(handler);
+        } else {
+          this.own(
+            on(this.get('map'), 'extent-change', lang.hitch(handler))
+          );
+        }
       }
       this.set('loaded', true);
       var params = {
