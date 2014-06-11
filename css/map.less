@@ -1,6 +1,9 @@
 @slider-border: 1px solid #cccccc;
 @slider-offset: 15px;
 @map-offset: 0;
+@background: #666;
+@color: #fff;
+@transparent: 0.8;
 
 #map-div {
   position: absolute;
@@ -19,12 +22,17 @@
   border: @slider-border;
   top: @slider-offset;
   left: @slider-offset;
+  background-color: @background;
+  color: @color;
+  opacity: @transparent;
+  border-radius: 0;
 }
 .esriSimpleSliderVertical .esriSimpleSliderIncrementButton,
 .esriSimpleSliderVertical .esriSimpleSliderDecrementButton{
   font-weight: 500;
   font-size: 20px;
   line-height: 27px;
+  border-radius: 0;
 }
 .esriSimpleSliderVertical .esriSimpleSliderIncrementButton {
   border-bottom: @slider-border;
