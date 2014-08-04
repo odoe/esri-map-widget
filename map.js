@@ -90,6 +90,9 @@ define([
       if (this.options.infoWindowSize) {
         map.infoWindow.resize(this.options.infoWindowSize);
       }
+      if (this.options.hideZoomSlider) {
+        map.hideZoomSlider();
+      }
       arrayUtil.forEach(map.layerIds, function(id) {
         var layer, opLayer;
         layer = map.getLayer(id);
