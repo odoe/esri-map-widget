@@ -41,8 +41,6 @@ define([
 
   return declare([_WidgetBase, _TemplatedMixin, Evented], {
 
-    options: {},
-
     templateString: '<div id="container-main"></div>',
 
     constructor: function(options) {
