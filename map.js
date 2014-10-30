@@ -3,7 +3,6 @@
 define([
   'dojo/_base/declare',
   'dojo/_base/lang',
-  'dojo/_base/array',
   'dojo/_base/unload',
   'dojo/topic',
   'dojo/on',
@@ -11,22 +10,29 @@ define([
   'dojo/Deferred',
   'dojo/dom-construct',
   'dojo/json',
+
+  'dojox/lang/functional/curry',
   // dijit stuff
   'dijit/_WidgetBase',
   'dijit/_TemplatedMixin',
   'widgets/map/converter'
 ], function(
-  declare, lang, arrayUtil, baseUnload,
+  declare, lang, baseUnload,
   topic, on, Evented, Deferred,
   domConstruct, dojoJson,
+  curry,
   _WidgetBase, _TemplatedMixin,
   converter
 ) {
   'use strict';
 
-  function head(t) {
-    return t[0];
-  }
+  var hitch = lang.hitch;
+
+  var findLayerById = curry(function(arr, id) {
+    return arr.filter(function(x) {
+      return x.id === id;
+    }).shift();
+  });
 
   function supports_local_storage() {
     var test = 'has_local';
@@ -47,36 +53,36 @@ define([
       this.options = options || {};
       if (options.webmap) {
         this.operationalLayers = options.webmap.itemData.operationalLayers;
-        this.layerIds = arrayUtil.map(this.operationalLayers, function(lyr) {
+        this.layerIds = this.operationalLayers.map(function(lyr) {
           return lyr.id;
-        }, this);
+        });
       }
     },
 
     postCreate: function() {
       domConstruct.place(this.domNode, document.body);
       this.own(
-        topic.subscribe('map-clear', lang.hitch(this, '_clear'))
+        topic.subscribe('map-clear', hitch(this, '_clear'))
       );
     },
 
     startup: function() {
       var data = converter.fromWebMapAsJSON(
         this.options
-      ).then(lang.hitch(this, '_mapCreated'), lang.hitch(this, function(err) {
+      ).then(hitch(this, '_mapCreated'), hitch(this, function(err) {
         // TODO - figure out how to tell what kind of error occured and fix it
         /*
-        this.options.webmap.itemData.baseMap.baseMapLayers[0] = {
-          "url": "http://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer",
-          "opacity": 1,
-          "visibility": true,
-          "visibleLayer": [0],
-          "title": "Topo Basemap"
-        };
-        converter.fromWebMapAsJSON(
-          this.options
-        ).then(lang.hitch(this, '_mapCreated'));
-        */
+           this.options.webmap.itemData.baseMap.baseMapLayers[0] = {
+           "url": "http://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer",
+           "opacity": 1,
+           "visibility": true,
+           "visibleLayer": [0],
+           "title": "Topo Basemap"
+           };
+           converter.fromWebMapAsJSON(
+           this.options
+           ).then(hitch(this, '_mapCreated'));
+           */
       }));
     },
 
@@ -91,21 +97,19 @@ define([
       if (this.options.hideZoomSlider) {
         map.hideZoomSlider();
       }
-      arrayUtil.forEach(map.layerIds, function(id) {
+
+      var findLayer = findLayerById(this.operationalLayers);
+
+      map.layerIds.map(function(id) {
         var layer, opLayer;
         layer = map.getLayer(id);
-        opLayer = this._findLayerById(id);
+        opLayer = findLayer(id);
         if (opLayer) {
           layer.title = opLayer.title;
         }
-      }, this);
-      this._init();
-    },
+      });
 
-    _findLayerById: function(id) {
-      return head(arrayUtil.filter(this.operationalLayers, function(lyr) {
-        return lyr.id === id;
-      }, this));
+      this._init();
     },
 
     _clear: function() {
@@ -135,12 +139,12 @@ define([
         // window.onbeforeunload, so if iOS, use map event to write
         // zoom and center to localStorage
         iOS = /(iPad|iPhone|iPod)/g.test( navigator.userAgent );
-        handler = lang.hitch(this, '_onUnload');
+        handler = hitch(this, '_onUnload');
         if (!iOS) {
           baseUnload.addOnUnload(handler);
         } else {
           this.own(
-            on(this.get('map'), 'extent-change', lang.hitch(handler))
+            on(this.get('map'), 'extent-change', hitch(handler))
           );
         }
       }
