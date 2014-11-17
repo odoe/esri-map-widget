@@ -8,7 +8,7 @@
 #map-div {
   position: absolute;
   padding: @map-offset;
-  top: 50px;
+  top: @map-offset;
   left: @map-offset;
   right: @map-offset;
   bottom: @map-offset;
@@ -17,24 +17,4 @@
   }
 }
 
-/*** Restyle Esri Zoomin-out ***/
-.esriSimpleSlider {
-  border: @slider-border;
-  top: @slider-offset;
-  left: @slider-offset;
-  background-color: @background;
-  color: @color;
-  opacity: @transparent;
-  border-radius: 0;
-}
-.esriSimpleSliderVertical .esriSimpleSliderIncrementButton,
-.esriSimpleSliderVertical .esriSimpleSliderDecrementButton{
-  font-weight: 500;
-  font-size: 20px;
-  line-height: 27px;
-  border-radius: 0;
-}
-.esriSimpleSliderVertical .esriSimpleSliderIncrementButton {
-  border-bottom: @slider-border;
-}
 
