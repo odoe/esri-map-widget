@@ -1,4 +1,3 @@
-/*global define, expect, describe, it, beforeEach, afterEach, sinon*/
 /*jshint laxcomma:true, expr:true*/
 define([
   'dojo/on',

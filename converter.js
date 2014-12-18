@@ -1,5 +1,3 @@
-/*global define*/
-/*jshint laxcomma:true*/
 /**
  * for details refer to:
  *   - http://resources.arcgis.com/en/help/arcgis-web-map-json/#/Web_map_data/02qt0000000q000000/

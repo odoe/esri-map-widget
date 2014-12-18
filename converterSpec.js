@@ -1,4 +1,3 @@
-/*global define, describe, it, expect, beforeEach, afterEach, sinon*/
 /*jshint expr:true*/
 define([
   'esri/map',

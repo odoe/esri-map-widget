@@ -1,5 +1,3 @@
-/*global define */
-/*jshint laxcomma:true*/
 define([
   'dojo/_base/declare',
   'dojo/_base/lang',
@@ -34,13 +32,13 @@ define([
     }).shift();
   });
 
-  function supports_local_storage() {
+  function supportsLocalStorage() {
     var test = 'has_local';
     try {
       localStorage.setItem(test, test);
       localStorage.removeItem(test);
       return true;
-    } catch(e) {
+    } catch (e) {
       return false;
     }
   }
@@ -101,9 +99,8 @@ define([
       var findLayer = findLayerById(this.operationalLayers);
 
       map.layerIds.map(function(id) {
-        var layer, opLayer;
-        layer = map.getLayer(id);
-        opLayer = findLayer(id);
+        var layer = map.getLayer(id);
+        var opLayer = findLayer(id);
         if (opLayer) {
           layer.title = opLayer.title;
         }
@@ -127,19 +124,18 @@ define([
     },
 
     _init: function() {
-      if (this.options.saveLocationOnUnload && supports_local_storage()) {
-        var vals, data, iOS, handler;
-        vals = localStorage.getItem(location.href + '--location');
+      if (this.options.saveLocationOnUnload && supportsLocalStorage()) {
+        var vals = localStorage.getItem(location.href + '--location');
         if (vals) {
-          data = dojoJson.parse(vals);
+          var data = dojoJson.parse(vals);
           this.get('map').centerAndZoom(data.center, data.zoom);
         }
         // handle this bug https://bugs.webkit.org/show_bug.cgi?id=19324
         // In my testing, a refresh of the browser in iOS will not fire
         // window.onbeforeunload, so if iOS, use map event to write
         // zoom and center to localStorage
-        iOS = /(iPad|iPhone|iPod)/g.test( navigator.userAgent );
-        handler = hitch(this, '_onUnload');
+        var iOS = /(iPad|iPhone|iPod)/g.test(navigator.userAgent);
+        var handler = hitch(this, '_onUnload');
         if (!iOS) {
           baseUnload.addOnUnload(handler);
         } else {
@@ -159,4 +155,3 @@ define([
   });
 
 });
-
