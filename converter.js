@@ -7,7 +7,7 @@
  **/
 define([
   'esri/tasks/PrintTask',
-  'esri/arcgis/utils',
+  'esri/arcgis/utils'
 ], function(
   PrintTask,
   arcgisUtils

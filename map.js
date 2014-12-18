@@ -67,7 +67,7 @@ define([
     },
 
     startup: function() {
-      var data = converter.fromWebMapAsJSON(
+      converter.fromWebMapAsJSON(
         this.options
       ).then(hitch(this, '_mapCreated'), hitch(this, function(err) {
         // TODO - figure out how to tell what kind of error occured and fix it
