@@ -1,4 +1,5 @@
 define([
+  'require',
   'dojo/_base/declare',
   'dojo/_base/lang',
   'dojo/_base/unload',
@@ -15,7 +16,7 @@ define([
   'dijit/_TemplatedMixin',
   'widgets/map/converter'
 ], function(
-  declare, lang, baseUnload,
+  require, declare, lang, baseUnload,
   topic, on, Evented, Deferred,
   domConstruct, dojoJson,
   curry,
@@ -45,19 +46,21 @@ define([
 
   return declare([_WidgetBase, _TemplatedMixin, Evented], {
 
-    templateString: '<div id="container-main"></div>',
+    templateString: null,
 
     constructor: function(options) {
-      this.options = options || {};
-      if (options.webmap) {
-        this.operationalLayers = options.webmap.itemData.operationalLayers;
-        this.layerIds = this.operationalLayers.map(function(lyr) {
-          return lyr.id;
-        });
-      }
+      this.options = options;
+      this.set('templateString', '<div id="container-main"></div>');
     },
 
     postCreate: function() {
+      var webmap = this.get('webmap');
+      if (webmap) {
+        var opLayers = webmap.itemData.operationalLayers;
+        var layerIds = opLayers.map(function(x) { return x.id; });
+        this.set('operationalLayers', opLayers);
+        this.set('layerIds', layerIds);
+      }
       domConstruct.place(this.domNode, document.body);
       this.own(
         topic.subscribe('map-clear', hitch(this, '_clear'))
@@ -65,9 +68,14 @@ define([
     },
 
     startup: function() {
-      converter.fromWebMapAsJSON(
-        this.options
-      ).then(hitch(this, '_mapCreated'), hitch(this, function(err) {
+      var opts = {
+        mapOptions: this.get('mapOptions'),
+        webmapid: this.get('webmapid'),
+        webmap: this.get('webmap'),
+        id: this.get('id')
+      };
+      converter.fromWebMapAsJSON(opts).then(
+        hitch(this, '_mapCreated'), hitch(this, function(err) {
         // TODO - figure out how to tell what kind of error occured and fix it
         /*
            this.options.webmap.itemData.baseMap.baseMapLayers[0] = {
@@ -89,11 +97,65 @@ define([
       this.set('map', response.map);
       // need to set titles for layers
       var map = this.get('map');
-      if (this.options.infoWindowSize) {
-        map.infoWindow.resize(this.options.infoWindowSize);
+      var windowSize = this.get('infoWindowSize');
+      if (windowSize) {
+        map.infoWindow.resize(windowSize);
       }
-      if (this.options.hideZoomSlider) {
+      if (this.get('hideZoomSlider')) {
         map.hideZoomSlider();
+      }
+      if (this.get('restrainPopup')) {
+        // borrowed from bootstrap-map-js
+        // https://github.com/Esri/bootstrap-map-js
+        require(['esri/geometry/Point'], function(Point) {
+          var onPopup = on(map.infoWindow, 'show', function() {
+            var pt = map.infoWindow.coords || map.infoWindow.location;
+            if (pt) {
+              var graphicCenterPt = map.infoWindow.coords ||
+                map.infoWindow.location;
+              var maxPoint = new Point(
+                map.extent.xmax, map.extent.ymax, map.spatialReference
+              );
+              var centerPoint = new Point(map.extent.getCenter());
+              var maxPointScreen = map.toScreen(maxPoint);
+              var centerPointScreen = map.toScreen(centerPoint);
+              var graphicPointScreen = map.toScreen(graphicCenterPt);
+              // Buffer
+              var marginLR = 10;
+              var marginTop = 3;
+              var infoWin = map.infoWindow.domNode.childNodes[0];
+              var infoWidth = infoWin.clientWidth;
+              var infoHeight = infoWin.clientHeight + map.infoWindow.marginTop;
+              // X
+              var lOff = graphicPointScreen.x - infoWidth / 2;
+              var rOff = graphicPointScreen.x + infoWidth;
+              var l = lOff - marginLR < 0;
+              var r = rOff > maxPointScreen.x - marginLR;
+              // Y
+              var yOff = map.infoWindow.offsetY;
+              var tOff = graphicPointScreen.y - infoHeight - yOff;
+              var t = tOff - marginTop < 0;
+              // X
+              if (l) {
+                centerPointScreen.x -=
+                  (Math.abs(lOff) + marginLR) < marginLR ?
+                  marginLR : Math.abs(lOff) + marginLR;
+              } else if (r) {
+                centerPointScreen.x += (rOff - maxPointScreen.x) + marginLR;
+              }
+              // Y
+              if (t) {
+                centerPointScreen.y += tOff - marginTop;
+              }
+
+              //Pan the map to the new centerpoint  
+              if (r || l || t) {
+                centerPoint = map.toMap(centerPointScreen);
+                map.centerAt(centerPoint);
+              }
+            }
+          });
+        });
       }
 
       var findLayer = findLayerById(this.operationalLayers);
@@ -124,7 +186,7 @@ define([
     },
 
     _init: function() {
-      if (this.options.saveLocationOnUnload && supportsLocalStorage()) {
+      if (this.get('saveLocationOnUnload') && supportsLocalStorage()) {
         var vals = localStorage.getItem(location.href + '--location');
         if (vals) {
           var data = dojoJson.parse(vals);
