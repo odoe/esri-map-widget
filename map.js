@@ -108,7 +108,7 @@ define([
         // borrowed from bootstrap-map-js
         // https://github.com/Esri/bootstrap-map-js
         require(['esri/geometry/Point'], function(Point) {
-          var onPopup = on(map.infoWindow, 'show', function() {
+          on(map.infoWindow, 'show', function() {
             var pt = map.infoWindow.coords || map.infoWindow.location;
             if (pt) {
               var graphicCenterPt = map.infoWindow.coords ||
@@ -148,7 +148,7 @@ define([
                 centerPointScreen.y += tOff - marginTop;
               }
 
-              //Pan the map to the new centerpoint  
+              //Pan the map to the new centerpoint
               if (r || l || t) {
                 centerPoint = map.toMap(centerPointScreen);
                 map.centerAt(centerPoint);
